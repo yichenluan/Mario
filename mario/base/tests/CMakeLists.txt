@@ -1,0 +1,2 @@
+add_executable(thread_test Thread_test.cpp)
+target_link_libraries(thread_test mario_base)
