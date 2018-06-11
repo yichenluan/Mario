@@ -4,7 +4,12 @@
 #include "mario/base/Thread.h"
 #include "mario/base/CurrentThread.h"
 
+#include <vector>
+
 namespace mario {
+
+class Channel;
+class Poller;
 
 class EventLoop {
 
@@ -20,6 +25,10 @@ public:
 
 	void loop();
 
+    void quit();
+
+    void updateChannel(Channel* channel);
+
 	void assertInLoopThread() {
 		if (!isInLoopThread()) {
 			abortNotInLoopThread();
@@ -31,11 +40,16 @@ public:
 	}
 
 private:
+    typedef std::vector<Channel*> ChannelList;
 
 	void abortNotInLoopThread();
 
 	bool _looping;
+    bool _quit;
 	const pid_t _threadId;
+    // TODO. scoped_ptr
+    std::unique_ptr<Poller> _poller;
+    ChannelList _activeChannels;
 };
 
 

@@ -1,5 +1,7 @@
 set(net_SRCS
     EventLoop.cpp
+    Channel.cpp
+    Poller.cpp
     )
 
 add_library(mario_net ${net_SRCS})
@@ -10,6 +12,8 @@ install(TARGETS mario_net DESTINATION lib)
 
 set(HEADERS
     EventLoop.h
+    Poller.h
+    Channel.h
     )
 
 install(FILES ${HEADERS} DESTINATION include/mario/net)

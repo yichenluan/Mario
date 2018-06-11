@@ -1,3 +1,5 @@
+// TODO. 用 std::atomic 来替代这个抽象
+//
 #ifndef MARIO_BASE_ATOMIC_H
 #define MARIO_BASE_ATOMIC_H
 

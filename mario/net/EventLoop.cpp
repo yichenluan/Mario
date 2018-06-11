@@ -1,17 +1,22 @@
-#include "EventLoop.h"
+#include "mario/net/EventLoop.h"
 
+#include "mario/net/Channel.h"
+#include "mario/net/Poller.h"
 #include "mario/base/easylogging++.h"
 
 // TODO. Select/Poll/Epoll Diff And Why.
-#include <poll.h>
+//#include <poll.h>
 
 using namespace mario;
 
 __thread EventLoop* t_loopInThisThread = 0;
 
+const int kPollTimeMs = 10000;
+
 EventLoop::EventLoop() 
-	: _looping(false),
-	  _threadId(CurrentThread::tid()) {
+	: _looping(false)
+    , _poller(new Poller(this))
+	, _threadId(CurrentThread::tid()) {
 
 	LOG(INFO) << "EventLoop created" << this << " in thread " << _threadId;
 	if (t_loopInThisThread) {
@@ -29,11 +34,28 @@ EventLoop::~EventLoop() {
 void EventLoop::loop() {
 	assertInLoopThread();
 	_looping = true;
+    _quit = false;
 
-	::poll(NULL, 0, 5*1000);
+    while (!_quit) {
+        _activeChannels.clear();
+        _poller->poll(kPollTimeMs, &_activeChannels);
+
+        for (auto channel_p : _activeChannels) {
+            channel_p->handleEvent();
+        }
+    }
 
 	LOG(INFO) << "EventLoop" << this << " stop looping";
 	_looping = false;
+}
+
+void EventLoop::quit() {
+    _quit = true;
+}
+
+void EventLoop::updateChannel(Channel* channel) {
+    assertInLoopThread();
+    _poller->updateChannel(channel);
 }
 
 void EventLoop::abortNotInLoopThread() {
