@@ -2,6 +2,7 @@ set(net_SRCS
     EventLoop.cpp
     Channel.cpp
     Poller.cpp
+    EventLoopThread.cpp
     )
 
 add_library(mario_net ${net_SRCS})
