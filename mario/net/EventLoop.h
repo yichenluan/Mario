@@ -47,7 +47,7 @@ private:
 	bool _looping;
     bool _quit;
 	const pid_t _threadId;
-    // TODO. scoped_ptr
+    // TODO. Learn more about smart ptr.
     std::unique_ptr<Poller> _poller;
     ChannelList _activeChannels;
 };

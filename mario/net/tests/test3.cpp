@@ -9,6 +9,7 @@ mario::EventLoop* g_loop;
 
 void timeout() {
     LOG(INFO) << "TimeOut!";
+    // poll 是水平触发，如果不读fd的话，会立刻不停触发。
     g_loop->quit();
 }
 
