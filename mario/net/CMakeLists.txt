@@ -5,6 +5,10 @@ set(net_SRCS
     EventLoopThread.cpp
     Timer.cpp
     TimerQueue.cpp
+    Acceptor.cpp
+    InetAddress.cpp
+    Socket.cpp
+    SocketsOps.cpp
     )
 
 add_library(mario_net ${net_SRCS})
@@ -22,6 +26,10 @@ set(HEADERS
     Timer.h
     TimerId.h
     TimerQueue.h
+    Acceptor.h
+    InetAddress.h
+    Socket.h
+    SocketsOps.h
     )
 
 install(FILES ${HEADERS} DESTINATION include/mario/net)
