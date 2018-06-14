@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <memory>
+#include <functional>
 
 namespace mario {
 
@@ -19,6 +20,7 @@ class TimerQueue;
 class EventLoop {
 
 public:
+    typedef std::function<void()> Functor;
 
 	EventLoop();
 	~EventLoop();
@@ -54,10 +56,25 @@ public:
 		return _threadId == CurrentThread::tid();
 	}
 
+    void runInLoop(const Functor& cb);
+    
+    void queueInLoop(const Functor& cb);
+
+    void wakeup();
+
 private:
     typedef std::vector<Channel*> ChannelList;
 
 	void abortNotInLoopThread();
+    void handleRead();
+    void doPendingFunctors();
+
+    bool _callingPendingFunctors;
+    int _wakeupFd;
+    // why not just Channel.
+    std::unique_ptr<Channel> _wakeupChannel;
+    MutexLock _mutex;
+    std::vector<Functor> _pendingFunctors;
 
 	bool _looping;
     bool _quit;

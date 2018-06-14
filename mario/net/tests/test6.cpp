@@ -20,13 +20,12 @@ int main() {
 
     mario::EventLoopThread loopThread;
     mario::EventLoop* loop = loopThread.startLoop();
-    
-    mario::TimerFd timeFd;
-    timeFd.SetTime(1000);
 
-    auto fd = timeFd.GetFd();
-    mario::Channel channel(loop, fd);
-    channel.setReadCallback(runInThread);
-    channel.enableReading();
-    sleep(15);
+    loop->runInLoop(runInThread);
+    sleep(1);
+    loop->runEvery(1, runInThread);
+    sleep(5);
+    loop->quit();
+
+    LOG(INFO) << "exit main";
 }
