@@ -2,6 +2,7 @@
 #define MARIO_NET_POLLER_H
 
 #include "mario/net/EventLoop.h"
+#include "mario/base/Timestamp.h"
 
 #include <map>
 #include <vector>
@@ -21,7 +22,7 @@ public:
     Poller(EventLoop* loop);
     ~Poller();
 
-    void poll(int timeoutMs, ChannelList* activeChannels);
+    Timestamp poll(int timeoutMs, ChannelList* activeChannels);
 
     void updateChannel(Channel* channel);
 

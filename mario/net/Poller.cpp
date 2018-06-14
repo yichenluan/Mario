@@ -13,8 +13,9 @@ Poller::Poller(EventLoop* loop)
 
 Poller::~Poller() {}
 
-void Poller::poll(int timeoutMs, ChannelList* activeChannels) {
+Timestamp Poller::poll(int timeoutMs, ChannelList* activeChannels) {
     int numEvents = ::poll(_pollfds.data(), _pollfds.size(), timeoutMs);
+    Timestamp now(Timestamp::now());
     if (numEvents > 0) {
         LOG(INFO) << numEvents << " events happended";
         fillActiveChannels(numEvents, activeChannels);
@@ -23,6 +24,7 @@ void Poller::poll(int timeoutMs, ChannelList* activeChannels) {
     } else {
         LOG(FATAL) << "Poller::poll() fatal.";
     }
+    return now;
 }
 
 void Poller::fillActiveChannels(int numEvents, ChannelList* activeChannels) const {

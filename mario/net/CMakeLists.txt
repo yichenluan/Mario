@@ -3,6 +3,8 @@ set(net_SRCS
     Channel.cpp
     Poller.cpp
     EventLoopThread.cpp
+    Timer.cpp
+    TimerQueue.cpp
     )
 
 add_library(mario_net ${net_SRCS})
@@ -15,6 +17,11 @@ set(HEADERS
     EventLoop.h
     Poller.h
     Channel.h
+    Callbacks.h
+    EventLoopThread.h
+    Timer.h
+    TimerId.h
+    TimerQueue.h
     )
 
 install(FILES ${HEADERS} DESTINATION include/mario/net)

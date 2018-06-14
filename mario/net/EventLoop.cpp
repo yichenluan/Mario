@@ -3,6 +3,7 @@
 #include "mario/net/Channel.h"
 #include "mario/net/Poller.h"
 #include "mario/base/easylogging++.h"
+#include "mario/net/TimerQueue.h"
 
 // TODO. Select/Poll/Epoll Diff And Why.
 //#include <poll.h>
@@ -16,6 +17,7 @@ const int kPollTimeMs = 10000;
 EventLoop::EventLoop() 
 	: _looping(false)
     , _poller(new Poller(this))
+    , _timerQueue(new TimerQueue(this))
 	, _threadId(CurrentThread::tid()) {
 
 	LOG(INFO) << "EventLoop created" << this << " in thread " << _threadId;
@@ -38,8 +40,7 @@ void EventLoop::loop() {
 
     while (!_quit) {
         _activeChannels.clear();
-        _poller->poll(kPollTimeMs, &_activeChannels);
-
+        _pollReturnTime = _poller->poll(kPollTimeMs, &_activeChannels);
         for (auto channel_p : _activeChannels) {
             channel_p->handleEvent();
         }
@@ -62,4 +63,18 @@ void EventLoop::abortNotInLoopThread() {
 	LOG(FATAL) << "EventLoop::abortNotInLoopThread - EventLoop " << this
 			  << " was created in _threadId = " << _threadId
 			  << ", current thread id = " << CurrentThread::tid();
+}
+
+TimerId EventLoop::runAt(const Timestamp& time, const TimerCallback& cb) {
+    return _timerQueue->addTimer(cb, time, 0.0);
+}
+
+TimerId EventLoop::runAfter(double delay, const TimerCallback& cb) {
+    Timestamp time(addTime(Timestamp::now(), delay));
+    return runAt(time, cb);
+}
+
+TimerId EventLoop::runEvery(double interval, const TimerCallback& cb) {
+    Timestamp time(addTime(Timestamp::now(), interval));
+    return _timerQueue->addTimer(cb, time, interval);
 }

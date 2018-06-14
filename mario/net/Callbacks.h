@@ -5,7 +5,7 @@
 
 namespace mario {
 
-typedef std::functional<void()> TimerCallback;
+typedef std::function<void()> TimerCallback;
 
 }
 

@@ -7,6 +7,7 @@
 #include <functional>
 #include <stdint.h>
 #include <unistd.h>
+#include <iostream>
 
 void mysleep(int seconds) {
 	timespec t = { seconds, 0 };
@@ -14,17 +15,19 @@ void mysleep(int seconds) {
 }
 
 void threadFunc1() {
-    LOG(INFO) <<  "[thread1] pid = " << getpid() << ", tid = " << mario::CurrentThread::tid();
-	for (int i = 1; i < 10; ++i) {
-		LOG(INFO) << "I am thread 1";
+    //LOG(INFO) <<  "[thread1] pid = " << getpid() << ", tid = " << mario::CurrentThread::tid();
+	for (int i = 1; i < 5; ++i) {
+		//LOG(INFO) << "I am thread 1";
+        std::cout << "thread 1" << std::endl;
 		mysleep(1);
 	}
 }
 
 void threadFunc2() {
-    LOG(INFO) <<  "[thread2] pid = " << getpid() << ", tid = " << mario::CurrentThread::tid();
-	for (int i = 1; i < 10; ++i) {
-		LOG(INFO) << "I am thread 2";
+    //LOG(INFO) <<  "[thread2] pid = " << getpid() << ", tid = " << mario::CurrentThread::tid();
+	for (int i = 1; i < 5; ++i) {
+		//LOG(INFO) << "I am thread 2";
+        std::cout << "thread 2" << std::endl;
 		mysleep(1);
 	}
 }
