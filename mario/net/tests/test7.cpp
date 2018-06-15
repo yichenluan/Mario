@@ -25,5 +25,11 @@ int main() {
     acceptor.setNewConnectionCallback(newConnection);
     acceptor.listen();
 
+    mario::InetAddress listenAddr_new(9982);
+
+    mario::Acceptor acceptor_new(&loop, listenAddr_new);
+    acceptor_new.setNewConnectionCallback(newConnection);
+    acceptor_new.listen();
+
     loop.loop();
 }

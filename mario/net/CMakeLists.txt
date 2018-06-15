@@ -9,6 +9,8 @@ set(net_SRCS
     InetAddress.cpp
     Socket.cpp
     SocketsOps.cpp
+    TcpServer.cpp
+    TcpConnection.cpp
     )
 
 add_library(mario_net ${net_SRCS})
@@ -30,6 +32,8 @@ set(HEADERS
     InetAddress.h
     Socket.h
     SocketsOps.h
+    TcpServer.h
+    TcpConnection.h
     )
 
 install(FILES ${HEADERS} DESTINATION include/mario/net)

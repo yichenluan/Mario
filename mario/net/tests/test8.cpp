@@ -1,0 +1,38 @@
+#include "mario/net/EventLoop.h"
+#include "mario/net/InetAddress.h"
+#include "mario/net/TcpServer.h"
+#include "mario/base/CurrentThread.h"
+#include "mario/base/easylogging++.h"
+
+#include <unistd.h>
+
+void onConnection(const mario::TcpConnectionPtr& conn) {
+    if (conn->connected()) {
+        LOG(INFO) << "onConnection(): new connection " << conn->name() << ", from " << conn->peerAddress().toHostPort();
+    } else {
+        LOG(INFO) << "onConnection(): connection " << conn->name() << " is down";
+    }
+}
+
+void onMessage(const mario::TcpConnectionPtr& conn,
+        const char* data,
+        ssize_t len) {
+    LOG(INFO) << "onMessage(): received " << len << " bytes from connection " << conn->name();
+    LOG(INFO) << "data: " << data;
+}
+
+INITIALIZE_EASYLOGGINGPP
+
+int main() {
+    LOG(INFO) << "main: pid = "<< getpid() << ", tid = " << mario::CurrentThread::tid();
+
+    mario::InetAddress listenAddr(9981);
+    mario::EventLoop loop;
+
+    mario::TcpServer server(&loop, listenAddr);
+    server.setConnectionCallback(onConnection);
+    server.setMessageCallback(onMessage);
+    server.start();
+
+    loop.loop();
+}
