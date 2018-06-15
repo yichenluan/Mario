@@ -26,6 +26,8 @@ public:
 
     void updateChannel(Channel* channel);
 
+    void removeChannel(Channel* channel);
+
     void assertInLoopThread() {
         _loop->assertInLoopThread();
     }

@@ -86,3 +86,14 @@ sockaddr_in sockets::getLocalAddr(int sockfd) {
     }
     return localaddr;
 }
+
+int sockets::getSocketError(int sockfd) {
+    int optVal;
+    socklen_t optlen = sizeof(optVal);
+
+    if (::getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &optVal, &optlen) < 0) {
+        return errno;
+    } else {
+        return optVal;
+    }
+}

@@ -45,6 +45,7 @@ public:
     TimerId runEvery(double interval, const TimerCallback& cb);
 
     void updateChannel(Channel* channel);
+    void removeChannel(Channel* channel);
 
 	void assertInLoopThread() {
 		if (!isInLoopThread()) {
