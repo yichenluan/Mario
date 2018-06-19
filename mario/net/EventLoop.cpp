@@ -62,7 +62,7 @@ void EventLoop::loop() {
         _activeChannels.clear();
         _pollReturnTime = _poller->poll(kPollTimeMs, &_activeChannels);
         for (auto channel_p : _activeChannels) {
-            channel_p->handleEvent();
+            channel_p->handleEvent(_pollReturnTime);
         }
 
         doPendingFunctors();

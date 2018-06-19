@@ -1,6 +1,7 @@
 #ifndef MARIO_NET_TCPCONNECTION_H
 #define MARIO_NET_TCPCONNECTION_H
 
+#include "mario/base/Buffer.h"
 #include "mario/net/Callbacks.h"
 #include "mario/net/InetAddress.h"
 
@@ -69,7 +70,7 @@ private:
         _state = s;
     }
 
-    void handleRead();
+    void handleRead(Timestamp receiveTime);
     void handleWrite();
     void handleClose();
     void handleError();
@@ -85,6 +86,7 @@ private:
     ConnectionCallback _connectionCallback;
     MessageCallback _messageCallback;
     CloseCallback _closeCallback;
+    Buffer _inputBuffer;
 };
 
 }

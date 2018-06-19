@@ -5,6 +5,7 @@ set(base_SRCS
     easylogging++.cc
     TimerFd.cpp
     Timestamp.cpp
+    Buffer.cpp
     )
 
 add_library(mario_base ${base_SRCS})

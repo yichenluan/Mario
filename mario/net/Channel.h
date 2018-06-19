@@ -3,6 +3,8 @@
 
 #include <functional>
 
+#include "mario/base/Timestamp.h"
+
 namespace mario {
 
 class EventLoop;
@@ -11,13 +13,14 @@ class Channel {
 
 public:
     typedef std::function<void()> EventCallback;
+    typedef std::function<void (Timestamp)> ReadEventCallback;
 
     Channel(EventLoop* loop, int fd);
     ~Channel();
 
-    void handleEvent();
+    void handleEvent(Timestamp receiveTime);
 
-    void setReadCallback(const EventCallback& cb) {
+    void setReadCallback(const ReadEventCallback& cb) {
         _readCallback = cb;
     }
 
@@ -98,7 +101,7 @@ private:
 
     bool _eventHandling;
 
-    EventCallback _readCallback;
+    ReadEventCallback _readCallback;
     EventCallback _writeCallback;
     EventCallback _errorCallback;
     EventCallback _closeCallback;

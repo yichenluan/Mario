@@ -11,6 +11,7 @@
 #include <unistd.h>
 
 using namespace mario;
+using namespace std::placeholders;
 
 TcpConnection::TcpConnection(EventLoop* loop,
         const std::string& nameArg,
@@ -27,7 +28,7 @@ TcpConnection::TcpConnection(EventLoop* loop,
 {
     LOG(INFO) << "TcpConnection::ctor name: " << _name << ", fd: " << _socket->fd();
     _channel->setReadCallback(
-            std::bind(&TcpConnection::handleRead, this)
+            std::bind(&TcpConnection::handleRead, this, _1)
         );
     _channel->setWriteCallback(
             std::bind(&TcpConnection::handleWrite, this)
@@ -61,17 +62,29 @@ void TcpConnection::connectDestroyed() {
     _loop->removeChannel(_channel.get());
 }
 
-void TcpConnection::handleRead() {
-    char buf[65536];
-    ssize_t n = ::read(_channel->fd(), buf, sizeof(buf));
+void TcpConnection::handleRead(Timestamp receiveTime) {
+    int savedErrno = 0;
+    ssize_t n = _inputBuffer.readFd(_channel->fd(), &savedErrno);
     if (n > 0) {
-        _messageCallback(shared_from_this(), buf, n);
+        _messageCallback(shared_from_this(), &_inputBuffer, receiveTime);
     } else if (n == 0) {
         handleClose();
     } else {
         handleError();
     }
 }
+
+//void TcpConnection::handleRead() {
+    //char buf[65536];
+    //ssize_t n = ::read(_channel->fd(), buf, sizeof(buf));
+    //if (n > 0) {
+        //_messageCallback(shared_from_this(), buf, n);
+    //} else if (n == 0) {
+        //handleClose();
+    //} else {
+        //handleError();
+    //}
+//}
 
 void TcpConnection::handleWrite() {
 

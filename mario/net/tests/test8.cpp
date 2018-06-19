@@ -14,11 +14,18 @@ void onConnection(const mario::TcpConnectionPtr& conn) {
     }
 }
 
+//void onMessage(const mario::TcpConnectionPtr& conn,
+        //const char* data,
+        //ssize_t len) {
+    //LOG(INFO) << "onMessage(): received " << len << " bytes from connection " << conn->name();
+    //LOG(INFO) << "data: " << data;
+//}
+
 void onMessage(const mario::TcpConnectionPtr& conn,
-        const char* data,
-        ssize_t len) {
-    LOG(INFO) << "onMessage(): received " << len << " bytes from connection " << conn->name();
-    LOG(INFO) << "data: " << data;
+        mario::Buffer* buf,
+        mario::Timestamp receiveTime) {
+    LOG(INFO) << "onMessage(): received " << buf->readableBytes() << " bytes from connection " << conn->name() << " at " << receiveTime.toFormattedString();
+    LOG(INFO) << "data: " << buf->retrieveAsString();
 }
 
 INITIALIZE_EASYLOGGINGPP

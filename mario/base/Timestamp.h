@@ -19,7 +19,7 @@ public:
 
     //std::string toString() const;
 
-    //std::string toFormattedString() const;
+    std::string toFormattedString() const;
 
     bool valid() const {
         return _microSecondsSinceEpoch > 0;
