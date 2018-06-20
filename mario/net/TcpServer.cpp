@@ -3,6 +3,7 @@
 #include "mario/base/easylogging++.h"
 #include "mario/net/Acceptor.h"
 #include "mario/net/EventLoop.h"
+#include "mario/net/EventLoopThreadPool.h"
 #include "mario/net/SocketsOps.h"
 
 #include <functional>
@@ -15,6 +16,7 @@ TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
     : _loop(loop)
     , _name(listenAddr.toHostPort())
     , _acceptor(new Acceptor(loop, listenAddr))
+    , _threadPool(new EventLoopThreadPool(loop))
     , _started(false)
     , _nextConnId(1)
 {
@@ -25,9 +27,14 @@ TcpServer::TcpServer(EventLoop* loop, const InetAddress& listenAddr)
 
 TcpServer::~TcpServer() {}
 
+void TcpServer::setThreadNum(int numThreads) {
+    _threadPool->setThreadNum(numThreads);
+}
+
 void TcpServer::start() {
     if (!_started) {
         _started = true;
+        _threadPool->start();
     }
 
     if (!_acceptor->listenning()) {
@@ -48,8 +55,9 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr) {
 
     InetAddress localAddr(sockets::getLocalAddr(sockfd));
 
+    EventLoop* ioLoop = _threadPool->getNextLoop();
     TcpConnectionPtr conn(
-            new TcpConnection(_loop, connName, sockfd, localAddr, peerAddr)
+            new TcpConnection(ioLoop, connName, sockfd, localAddr, peerAddr)
             );
     _connections[connName] = conn;
     conn->setConnectionCallback(_connectionCallback);
@@ -57,14 +65,24 @@ void TcpServer::newConnection(int sockfd, const InetAddress& peerAddr) {
     conn->setCloseCallback(
             std::bind(&TcpServer::removeConnection, this, _1)
             );
-    conn->connectEstablished();
+    //conn->connectEstablished();
+    ioLoop->runInLoop(
+            std::bind(&TcpConnection::connectEstablished, conn)
+            );
 }
 
 void TcpServer::removeConnection(const TcpConnectionPtr& conn) {
+    _loop->runInLoop(
+            std::bind(&TcpServer::removeConnectionInLoop, this, conn)
+            );
+}
+
+void TcpServer::removeConnectionInLoop(const TcpConnectionPtr& conn) {
     _loop->assertInLoopThread();
-    LOG(INFO) << "TcpServer::removeConnection [" << _name << "] - connection " << conn->name();
+    LOG(INFO) << "TcpServer::removeConnectionInLoop [" << _name << "] - connection " << conn->name();
     _connections.erase(conn->name());
-    _loop->queueInLoop(
+    EventLoop* ioLoop = conn->getLoop();
+    ioLoop->queueInLoop(
             std::bind(&TcpConnection::connectDestroyed, conn)
             );
 }

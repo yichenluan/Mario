@@ -11,6 +11,7 @@ set(net_SRCS
     SocketsOps.cpp
     TcpServer.cpp
     TcpConnection.cpp
+    EventLoopThreadPool.cpp
     )
 
 add_library(mario_net ${net_SRCS})
@@ -34,6 +35,7 @@ set(HEADERS
     SocketsOps.h
     TcpServer.h
     TcpConnection.h
+    EventLoopThreadPool.h
     )
 
 install(FILES ${HEADERS} DESTINATION include/mario/net)

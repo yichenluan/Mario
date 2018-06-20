@@ -8,9 +8,11 @@
 
 void onConnection(const mario::TcpConnectionPtr& conn) {
     if (conn->connected()) {
-        LOG(INFO) << "onConnection(): new connection " << conn->name() << ", from " << conn->peerAddress().toHostPort();
+        LOG(INFO) << "onConnection(): tid = " << mario::CurrentThread::tid() 
+            <<  "new connection " << conn->name() << ", from " << conn->peerAddress().toHostPort();
     } else {
-        LOG(INFO) << "onConnection(): connection " << conn->name() << " is down";
+        LOG(INFO) << "onConnection(): tid = " << mario::CurrentThread::tid() 
+            << ", connection " << conn->name() << " is down";
     }
 }
 
@@ -24,7 +26,8 @@ void onConnection(const mario::TcpConnectionPtr& conn) {
 void onMessage(const mario::TcpConnectionPtr& conn,
         mario::Buffer* buf,
         mario::Timestamp receiveTime) {
-    LOG(INFO) << "onMessage(): received " << buf->readableBytes() << " bytes from connection " << conn->name() << " at " << receiveTime.toFormattedString();
+    LOG(INFO) << "onMessage(): tid = " << mario::CurrentThread::tid() 
+        << ", received " << buf->readableBytes() << " bytes from connection " << conn->name() << " at " << receiveTime.toFormattedString();
     LOG(INFO) << "data: " << buf->retrieveAsString();
 }
 
@@ -39,6 +42,7 @@ int main() {
     mario::TcpServer server(&loop, listenAddr);
     server.setConnectionCallback(onConnection);
     server.setMessageCallback(onMessage);
+    server.setThreadNum(3);
     server.start();
 
     loop.loop();
