@@ -72,6 +72,10 @@ public:
         update();
     }
 
+    bool isWriting() const {
+        return _events & kWriteEvent;
+    }
+
     // For Poller
     int index() {
         return _index;

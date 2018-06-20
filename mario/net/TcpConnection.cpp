@@ -53,6 +53,55 @@ void TcpConnection::connectEstablished() {
     _connectionCallback(shared_from_this());
 }
 
+void TcpConnection::send(const std::string& message) {
+    if (_state == kConnected) {
+        if (_loop->isInLoopThread()) {
+            sendInLoop(message);
+        } else {
+            _loop->runInLoop(std::bind(&TcpConnection::sendInLoop, this, message));
+        }
+    }
+}
+
+void TcpConnection::sendInLoop(const std::string& message) {
+    _loop->assertInLoopThread();
+    ssize_t nwrote = 0;
+    if (!_channel->isWriting() && _outputBuffer.readableBytes() == 0) {
+        nwrote = ::write(_channel->fd(), message.data(), message.size());
+        if (nwrote >= 0) {
+            if (nwrote < message.size()) {
+                LOG(INFO) << "more data to write";
+            }
+        } else {
+            nwrote = 0;
+            if (errno != EWOULDBLOCK) {
+                LOG(FATAL) << "TcpConnection::sendInLoop";
+            }
+        }
+    }
+
+    if (nwrote < message.size()) {
+        _outputBuffer.append(message.data() + nwrote, message.size() - nwrote);
+        if (!_channel->isWriting()) {
+            _channel->enableWriting();
+        }
+    }
+}
+
+void TcpConnection::shutdown() {
+    if (_state == kConnected) {
+        setState(kDisconnecting);
+        _loop->runInLoop(std::bind(&TcpConnection::shutdownInLoop, this));
+    }
+}
+
+void TcpConnection::shutdownInLoop() {
+    _loop->assertInLoopThread();
+    if (!_channel->isWriting()) {
+        _socket->shutdownWrite();
+    }
+}
+
 void TcpConnection::connectDestroyed() {
     _loop->assertInLoopThread();
     setState(kDisconnected);
@@ -87,7 +136,26 @@ void TcpConnection::handleRead(Timestamp receiveTime) {
 //}
 
 void TcpConnection::handleWrite() {
-
+    _loop->assertInLoopThread();
+    if (_channel->isWriting()) {
+        ssize_t n = ::write(_channel->fd(), _outputBuffer.peek(),
+                _outputBuffer.readableBytes());
+        if (n > 0) {
+            _outputBuffer.retrieve(n);
+            if (_outputBuffer.readableBytes() == 0) {
+                _channel->disableWriting();
+                if (_state == kDisconnecting) {
+                    shutdownInLoop();
+                }
+            } else {
+                LOG(INFO) << "more data to write";
+            }
+        } else {
+            LOG(FATAL) << "TcpConnection::handleWrite";
+        }
+    } else {
+        LOG(INFO) << "Connection is down";
+    }
 }
 
 void TcpConnection::handleClose() {

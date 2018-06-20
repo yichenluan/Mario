@@ -43,6 +43,10 @@ public:
         return _state == kConnected;
     }
 
+    void send(const std::string& message);
+
+    void shutdown();
+
     void setConnectionCallback(const ConnectionCallback& cb) {
         _connectionCallback = cb;
     }
@@ -63,6 +67,7 @@ private:
     enum  StateE {
         kConnecting,
         kConnected,
+        kDisconnecting,
         kDisconnected,
     };
 
@@ -74,6 +79,8 @@ private:
     void handleWrite();
     void handleClose();
     void handleError();
+    void sendInLoop(const std::string& message);
+    void shutdownInLoop();
 
     EventLoop* _loop;
     std::string _name;
@@ -87,6 +94,7 @@ private:
     MessageCallback _messageCallback;
     CloseCallback _closeCallback;
     Buffer _inputBuffer;
+    Buffer _outputBuffer;
 };
 
 }
