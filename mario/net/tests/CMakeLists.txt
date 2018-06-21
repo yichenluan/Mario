@@ -21,3 +21,6 @@ target_link_libraries(test8 mario_net)
 
 add_executable(test9 test9.cpp)
 target_link_libraries(test9 mario_net)
+
+add_executable(test12 test12.cpp)
+target_link_libraries(test12 mario_net)

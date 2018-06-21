@@ -9,7 +9,7 @@ using namespace mario;
 
 Acceptor::Acceptor(EventLoop* loop, const InetAddress& listenAddr)
     : _loop(loop)
-    , _acceptSocket(sockets::createNonblocingOrDie())
+    , _acceptSocket(sockets::createNonblockingOrDie())
     , _acceptChannel(loop, _acceptSocket.fd())
     , _listenning(false)
 {

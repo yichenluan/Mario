@@ -20,7 +20,7 @@ SA* sockaddr_cast(struct sockaddr_in* addr) {
     return static_cast<SA*>(reinterpret_cast<void*>(addr));
 }
 
-int sockets::createNonblocingOrDie() {
+int sockets::createNonblockingOrDie() {
     int sockfd = ::socket(AF_INET,
             SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC,
             IPPROTO_TCP
@@ -30,6 +30,10 @@ int sockets::createNonblocingOrDie() {
     }
 
     return sockfd;
+}
+
+int sockets::connect(int sockfd, const struct sockaddr_in& addr) {
+    return ::connect(sockfd, sockaddr_cast(&addr), sizeof(addr));
 }
 
 void sockets::bindOrDie(int sockfd, const struct sockaddr_in& addr) {
@@ -83,7 +87,7 @@ void sockets::fromHostPort(const char* ip, uint16_t port, struct sockaddr_in* ad
     }
 }
 
-sockaddr_in sockets::getLocalAddr(int sockfd) {
+struct sockaddr_in sockets::getLocalAddr(int sockfd) {
     struct sockaddr_in localaddr;
     bzero(&localaddr, sizeof(localaddr));
     socklen_t addrlen = sizeof(localaddr);
@@ -92,6 +96,17 @@ sockaddr_in sockets::getLocalAddr(int sockfd) {
     }
     return localaddr;
 }
+
+struct sockaddr_in sockets::getPeerAddr(int sockfd) {
+    struct sockaddr_in peeraddr;
+    bzero(&peeraddr, sizeof(peeraddr));
+    socklen_t addrlen = sizeof(peeraddr);
+    if (::getpeername(sockfd, sockaddr_cast(&peeraddr), &addrlen) < 0) {
+        LOG(FATAL) << "sockets::getPeerAddr";
+    }
+    return peeraddr;
+}
+
 
 int sockets::getSocketError(int sockfd) {
     int optVal;

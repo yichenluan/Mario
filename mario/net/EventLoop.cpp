@@ -106,6 +106,10 @@ TimerId EventLoop::runEvery(double interval, const TimerCallback& cb) {
     return _timerQueue->addTimer(cb, time, interval);
 }
 
+void EventLoop::cancel(TimerId timerId) {
+    return _timerQueue->cancel(timerId);
+}
+
 void EventLoop::runInLoop(const Functor& cb) {
     if (isInLoopThread()) {
         cb();

@@ -8,12 +8,16 @@ class Timer;
 class TimerId {
 
 public:
-    explicit TimerId(Timer* timer)
+    TimerId(Timer* timer = NULL, int64_t seq = 0)
         : _value(timer)
+        , _seq(seq)
     {}
+
+    friend class TimerQueue;
 
 private:
     Timer* _value;
+    int64_t _seq;
 };
 
 }

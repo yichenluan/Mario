@@ -3,6 +3,7 @@
 
 #include "mario/base/Timestamp.h"
 #include "mario/net/Callbacks.h"
+#include "mario/base/Atomic.h"
 
 namespace mario {
 
@@ -14,6 +15,7 @@ public:
         , _expiration(when)
         , _interval(interval)
         , _repeat(interval > 0.0)
+        , _sequence(_s_numCreated.incrementAndGet())
     {}
 
     void run() const {
@@ -28,6 +30,10 @@ public:
         return _repeat;
     }
 
+    int64_t sequence() const {
+        return _sequence;
+    }
+
     void restart(Timestamp now);
 
 private:
@@ -35,7 +41,9 @@ private:
     Timestamp _expiration;
     const double _interval;
     const bool _repeat;
+    const int64_t _sequence;
 
+    static AtomicInt64 _s_numCreated;
 };
 
 }
