@@ -1,7 +1,8 @@
 #include "mario/net/EventLoop.h"
 
 #include "mario/net/Channel.h"
-#include "mario/net/Poller.h"
+//#include "mario/net/Poller.h"
+#include "mario/net/EPoller.h"
 #include "mario/base/easylogging++.h"
 #include "mario/net/TimerQueue.h"
 
@@ -27,7 +28,7 @@ static int createEventfd() {
 
 EventLoop::EventLoop() 
 	: _looping(false)
-    , _poller(new Poller(this))
+    , _poller(new EPoller(this))
     , _timerQueue(new TimerQueue(this))
 	, _threadId(CurrentThread::tid()) 
     , _callingPendingFunctors(false)

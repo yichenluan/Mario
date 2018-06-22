@@ -14,7 +14,8 @@
 namespace mario {
 
 class Channel;
-class Poller;
+//class Poller;
+class EPoller;
 class TimerQueue;
 
 class EventLoop {
@@ -84,7 +85,8 @@ private:
 	const pid_t _threadId;
     Timestamp _pollReturnTime;
     // TODO. Learn more about smart ptr.
-    std::unique_ptr<Poller> _poller;
+    //std::unique_ptr<Poller> _poller;
+    std::unique_ptr<EPoller> _poller;
     std::unique_ptr<TimerQueue> _timerQueue;
     ChannelList _activeChannels;
 };
